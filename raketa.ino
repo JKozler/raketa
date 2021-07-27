@@ -1,5 +1,6 @@
-#include <ArduinoHttpClient.h>
+#include <HttpClient.h>
 #include <ArduinoJson.h>
+#include <Bridge.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WiFiServer.h>
@@ -15,6 +16,7 @@ int kalibraceIgnition = 0;
 int casOtevreni = 0;
 bool start = false;
 bool stopS = false;
+long aktualniCas = millis();
 
 //Hlavni piny
 int Va = 1;
@@ -38,19 +40,18 @@ void setup() {
   Serial.println("Connected to the WiFi network");
   if(WiFi.status() == WL_CONNECTED){
     HttpClient http;
-    http.begin("url"); //dopsat URL
-    http.addHeader("Content-Type", "text/plain");
-    int httpResponseCode = http.POST("POSTING from ESP32");
+     //dopsat URL
+    int httpResponseCode = http.get("https://jsonplaceholder.typicode.com/todos/1");
     if(httpResponseCode>0){
   
-    String response = http.getString();
-    StaticJsonDocument<300> JSONBuffer;
-    JsonObject& parsed = JSONBuffer.parseObject(response);
-    kalibracePaliva = parsed['palivo'];
-    tlakVNadrzi = parsed['nadrz'];
-    delkaTestu = parsed['delka'];
-    kalibraceIgnition = parsed['kalign'];
-    casOtevreni = parsed['otevreni'];
+    String response = http.readString();
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, response);
+    kalibracePaliva = doc["userId"];
+    tlakVNadrzi = doc["userId"];
+    delkaTestu = doc["userId"];
+    kalibraceIgnition = doc["userId"];
+    casOtevreni = doc["userId"];
   
     }else{
         Serial.print("Error on sending POST: ");
@@ -74,6 +75,7 @@ void loop() {
     stopS = true;
   }
   else if(start){
+  //kontrola casu, az na tests
   }
   else if(digitalRead(Start) == true){
     start = true;
