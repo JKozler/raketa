@@ -7,8 +7,8 @@
 #include <WiFiUdp.h>
 
 //Hlavni promenne
-const char* jmenoWifi = "Rafik";
-const char* hesloWifi = "140329041975.Rk";
+const char* jmenoWifi = "test";
+const char* hesloWifi = "test";
 long kalibracePaliva = 0;
 int tlakVNadrzi = 0;
 int delkaTestu = 0;
