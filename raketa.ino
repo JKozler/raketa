@@ -7,14 +7,14 @@
 #include <WiFiUdp.h>
 
 //Hlavni promenne
-const char* jmenoWifi = "test";
-const char* hesloWifi = "test";
-int kalibracePaliva = 0;
+const char* jmenoWifi = "Rafik";
+const char* hesloWifi = "140329041975.Rk";
+long kalibracePaliva = 0;
 int tlakVNadrzi = 0;
 int delkaTestu = 0;
 int kalibraceIgnition = 0;
 int casOtevreni = 0;
-int dalsiPricetniCasu = 0;
+long dalsiPricetniCasu = 0;
 bool start = false;
 bool stopS = false;
 bool poprve = true;
@@ -22,16 +22,17 @@ long aktualniCas;
 long konecnyCas;
 
 //Hlavni piny
-int Va = 1;
-int Vb = 2;
-int Vc = 3;
-int Vd = 4;
-int Vd = 5;
+int Va = 2;
+int Vb = 27;
+int Vc = 14;
+int Vd = 12;
+int Vf = 13;
 int Start = 6;
 int Stop = 7;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
+  Serial.println("Vitejte, pane.");
   delay(4000);
   //Inicializace pripojeni
   WiFi.begin(jmenoWifi, hesloWifi);
@@ -42,62 +43,78 @@ void setup() {
   }
  
   Serial.println("Connected to the WiFi network");
-  if(WiFi.status() == WL_CONNECTED){
     HttpClient http;
      //dopsat URL
+    Serial.println("Access URL");
     int httpResponseCode = http.get("https://jsonplaceholder.typicode.com/todos/1");
-    if(httpResponseCode>0){
-  
-    String response = http.readString();
-    DynamicJsonDocument doc(1024);
-    deserializeJson(doc, response);
-    kalibracePaliva = doc["userId"];
-    tlakVNadrzi = doc["userId"];
-    delkaTestu = doc["userId"];
-    kalibraceIgnition = doc["userId"];
-    casOtevreni = doc["userId"];
-  
-    }else{
-        Serial.print("Error on sending POST: ");
-        Serial.println(httpResponseCode);
-    }
+    Serial.println(httpResponseCode);
+    if(httpResponseCode<0){
+      DynamicJsonDocument doc(1024);
+      auto error = deserializeJson(doc, http.readString());
+      if (error) {
+          Serial.print(F("deserializeJson() failed with code "));
+          Serial.println(error.c_str());
+      }
+      Serial.println(http.readString());
+      kalibracePaliva = doc["userId"];
+      tlakVNadrzi = doc["userId"];
+      delkaTestu = doc["userId"];
+      kalibraceIgnition = doc["userId"];
+      casOtevreni = doc["userId"];
+      delay(2000);
   }
+  else{
+    Serial.println("Selhani requestu.");
+  }
+  Serial.println("Going to loop");
 
-  //Inicializace pinu
-  pinMode(Va, OUTPUT);
-  pinMode(Vb, OUTPUT);
-  pinMode(Vc, OUTPUT);
-  pinMode(Vd, OUTPUT);
-  pinMode(Vf, OUTPUT);
-  pinMode(Start, INPUT_PULLUP);
-  pinMode(Stop, INPUT_PULLUP);
+    //Inicializace pinu
+    pinMode(Va, OUTPUT);
+    pinMode(Vb, OUTPUT);
+    pinMode(Vc, OUTPUT);
+    pinMode(Vd, OUTPUT);
+    pinMode(Vf, OUTPUT);
+    //pinMode(Start, INPUT_PULLUP);
+    //pinMode(Stop, INPUT_PULLUP);
 }
 
 void loop() {
+  Serial.println("Loop");
+  Serial.println(kalibracePaliva);
+  digitalWrite(Vb, HIGH);
+  digitalWrite(Vc, HIGH);
+  digitalWrite(Vd, HIGH);
+  digitalWrite(Vf, HIGH);
+  delay(4000);
+  digitalWrite(Vb, LOW);
+  digitalWrite(Vc, LOW);
+  digitalWrite(Vd, LOW);
+  digitalWrite(Vf, LOW);
+  delay(2000);
   //Podminky nize resi celou logiku s tlacitkem start a stop
   if(stopS){}
   else if(digitalRead(Stop) == true){
     stopS = true;
   }
-  else if(start){
-    if(poprve){
+  else if(start) {
+      if(poprve) {
       poprve = false;
       digitalWrite(Vd, HIGH);
-      if(kalibracePaliva < 10000){
-        delay(kalibrace);
+      if(kalibracePaliva < 10000) {
+        delay(kalibracePaliva);
         digitalWrite(Vf, HIGH);
-        delay(10000 - kalibrace);
+        delay(10000 - kalibracePaliva);
         digitalWrite(Va, HIGH);
         dalsiPricetniCasu = 10000;
       }
-      else if(kalibracePaliva > 10000){
+      else if(kalibracePaliva > 10000) {
         delay(10000);
         digitalWrite(Va, HIGH);
-        delay(kalibrace - 10000);
+        delay(kalibracePaliva - 10000);
         digitalWrite(Vf, HIGH);
-        dalsiPricetniCasu = 10000 + kalibrace;
+        dalsiPricetniCasu = 10000 + kalibracePaliva;
       }
-      else{
+      else {
         delay(10000);
         digitalWrite(Va, HIGH);
         digitalWrite(Vf, HIGH);
@@ -125,3 +142,4 @@ void loop() {
   else{
     //Kdyby neco, tak dopsat
   }
+}
