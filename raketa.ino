@@ -14,17 +14,21 @@ int tlakVNadrzi = 0;
 int delkaTestu = 0;
 int kalibraceIgnition = 0;
 int casOtevreni = 0;
+int dalsiPricetniCasu = 0;
 bool start = false;
 bool stopS = false;
-long aktualniCas = millis();
+bool poprve = true;
+long aktualniCas;
+long konecnyCas;
 
 //Hlavni piny
 int Va = 1;
 int Vb = 2;
 int Vc = 3;
 int Vd = 4;
-int Start = 5;
-int Stop = 6;
+int Vd = 5;
+int Start = 6;
+int Stop = 7;
 
 void setup() {
   Serial.begin(115200);
@@ -64,6 +68,7 @@ void setup() {
   pinMode(Vb, OUTPUT);
   pinMode(Vc, OUTPUT);
   pinMode(Vd, OUTPUT);
+  pinMode(Vf, OUTPUT);
   pinMode(Start, INPUT_PULLUP);
   pinMode(Stop, INPUT_PULLUP);
 }
@@ -75,7 +80,44 @@ void loop() {
     stopS = true;
   }
   else if(start){
-  //kontrola casu, az na tests
+    if(poprve){
+      poprve = false;
+      digitalWrite(Vd, HIGH);
+      if(kalibracePaliva < 10000){
+        delay(kalibrace);
+        digitalWrite(Vf, HIGH);
+        delay(10000 - kalibrace);
+        digitalWrite(Va, HIGH);
+        dalsiPricetniCasu = 10000;
+      }
+      else if(kalibracePaliva > 10000){
+        delay(10000);
+        digitalWrite(Va, HIGH);
+        delay(kalibrace - 10000);
+        digitalWrite(Vf, HIGH);
+        dalsiPricetniCasu = 10000 + kalibrace;
+      }
+      else{
+        delay(10000);
+        digitalWrite(Va, HIGH);
+        digitalWrite(Vf, HIGH);
+        dalsiPricetniCasu = 10000;
+      }
+      delay(kalibraceIgnition);
+      digitalWrite(Va, LOW);
+      digitalWrite(Vd, LOW);
+      digitalWrite(Vb, HIGH);
+      konecnyCas = millis() + delkaTestu + dalsiPricetniCasu;
+    }
+    else {
+      aktualniCas = millis();
+      if(aktualniCas >= konecnyCas){
+        stopS = true;
+      }
+      else{
+        //dopsat, kontrola senzoru apod.
+      }
+    }
   }
   else if(digitalRead(Start) == true){
     start = true;
@@ -83,4 +125,3 @@ void loop() {
   else{
     //Kdyby neco, tak dopsat
   }
-}
