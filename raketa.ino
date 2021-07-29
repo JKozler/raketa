@@ -1,4 +1,4 @@
-#include <HttpClient.h>
+#include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <Bridge.h>
 #include <WiFi.h>
@@ -10,6 +10,7 @@
 const char* jmenoWifi = "test";
 const char* hesloWifi = "test";
 long kalibracePaliva = 0;
+String c = "";
 int tlakVNadrzi = 0;
 int delkaTestu = 0;
 int kalibraceIgnition = 0;
@@ -22,7 +23,7 @@ long aktualniCas;
 long konecnyCas;
 
 //Hlavni piny
-int Va = 2;
+int Va = 16;
 int Vb = 27;
 int Vc = 14;
 int Vd = 12;
@@ -31,7 +32,7 @@ int Start = 6;
 int Stop = 7;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("Vitejte, pane.");
   delay(4000);
   //Inicializace pripojeni
@@ -43,19 +44,18 @@ void setup() {
   }
  
   Serial.println("Connected to the WiFi network");
-    HttpClient http;
+    HTTPClient http;
+    WiFiClient client;
      //dopsat URL
     Serial.println("Access URL");
-    int httpResponseCode = http.get("https://jsonplaceholder.typicode.com/todos/1");
+    http.begin("https://jsonplaceholder.typicode.com/todos/1" );  
+    int httpResponseCode = http.GET();
+    String res = http.getString();
+    Serial.println(res);
     Serial.println(httpResponseCode);
-    if(httpResponseCode<0){
+    if(httpResponseCode>0){
       DynamicJsonDocument doc(1024);
-      auto error = deserializeJson(doc, http.readString());
-      if (error) {
-          Serial.print(F("deserializeJson() failed with code "));
-          Serial.println(error.c_str());
-      }
-      Serial.println(http.readString());
+      deserializeJson(doc, res);
       kalibracePaliva = doc["userId"];
       tlakVNadrzi = doc["userId"];
       delkaTestu = doc["userId"];
@@ -81,11 +81,13 @@ void setup() {
 void loop() {
   Serial.println("Loop");
   Serial.println(kalibracePaliva);
+  digitalWrite(Va, HIGH);
   digitalWrite(Vb, HIGH);
   digitalWrite(Vc, HIGH);
   digitalWrite(Vd, HIGH);
   digitalWrite(Vf, HIGH);
   delay(4000);
+  digitalWrite(Va, LOW);
   digitalWrite(Vb, LOW);
   digitalWrite(Vc, LOW);
   digitalWrite(Vd, LOW);
