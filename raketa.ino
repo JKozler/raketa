@@ -130,6 +130,7 @@ void loop() {
     }
     else {
       aktualniCas = millis();
+      reliefeCyklus();
       if(aktualniCas >= konecnyCas){
         stopS = true;
       }
@@ -143,5 +144,15 @@ void loop() {
   }
   else{
     //Kdyby neco, tak dopsat
+  }
+}
+
+void reliefeCyklus(){
+  //Řeší problematiku reliefu
+  if(tlakVNadrzi > namerenyTlak){
+    digitalWrite(Reliefe, LOW);
+  }
+  else if(tlakVNadrzi+1 <= namerenyTlak){
+    digitalWrite(Reliefe, HIGH);
   }
 }
