@@ -28,6 +28,7 @@ int Vb = 27;
 int Vc = 14;
 int Vd = 12;
 int Vf = 13;
+int Reliefe = 17;
 int Start = 6;
 int Stop = 7;
 
@@ -74,6 +75,7 @@ void setup() {
     pinMode(Vc, OUTPUT);
     pinMode(Vd, OUTPUT);
     pinMode(Vf, OUTPUT);
+    pinMode(Reliefe, OUTPUT);
     //pinMode(Start, INPUT_PULLUP);
     //pinMode(Stop, INPUT_PULLUP);
 }
