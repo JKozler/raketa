@@ -12,6 +12,7 @@ const char* hesloWifi = "test";
 long kalibracePaliva = 0;
 String c = "";
 int tlakVNadrzi = 0;
+int namerenyTlak = 0;
 int delkaTestu = 0;
 int kalibraceIgnition = 0;
 int casOtevreni = 0;
@@ -83,12 +84,17 @@ void setup() {
 void loop() {
   Serial.println("Loop");
   Serial.println(kalibracePaliva);
-  digitalWrite(Va, HIGH);
-  digitalWrite(Vb, HIGH);
-  digitalWrite(Vc, HIGH);
   digitalWrite(Vd, HIGH);
+  delay(10000);
+  digitalWrite(Va, HIGH);
   digitalWrite(Vf, HIGH);
+  delay(1000);
+  digitalWrite(Va, LOW);
+  digitalWrite(Vd, LOW);
+  digitalWrite(Vb, HIGH);
   delay(4000);
+  digitalWrite(Vc, HIGH);
+  delay(2000);
   digitalWrite(Va, LOW);
   digitalWrite(Vb, LOW);
   digitalWrite(Vc, LOW);
